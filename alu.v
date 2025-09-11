@@ -14,7 +14,7 @@ module alu #(
     output reg parity
 );
     wire [WIDTH:0] result_int;
-    barrel_shifter #(.DATA_WIDTH(32), .SHIFT_WIDTH(5)) barel_shifter (
+    barrel_shifter #(.WIDTH(32), .SHIFT_WIDTH(5)) barel_shifter (
         .data_in({b[WIDTH-1],b}),
         .shift_amt(shift_amt), // Assuming b[4:0] is the shift amount
         .shift_val(1'b0), // No shift value for this example

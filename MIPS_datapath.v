@@ -92,7 +92,8 @@ mux_nx1 #(
     .sel(select_jumpD),
     .out(mux1_out_to_pc)
 );
-//Instruction Memory
+    
+//Instruction Memory if you don't have ram limitation
 //register_file #(
 //    .DATA_WIDTH(32),
 //    .ADDR_WIDTH(32),
@@ -108,6 +109,8 @@ mux_nx1 #(
 //    .raddr(pc_out),
 //    .rdata(icache_rdata)
 //);
+
+    // Due to limited-ram, to run the simulation we made the instruction-mem as the word addressible within 8 bits(2^8=32 spaces) only
 register_file #(
     .DATA_WIDTH(32),
     .ADDR_WIDTH(8),      // 256 instruction slots
@@ -123,13 +126,13 @@ register_file #(
     .raddr(pc_out[7:0]),    // Word address
     .rdata(icache_rdata)
 );
-wire [31:0] PC_plus4; // Output from the adder--> also input to the pipeline register
+wire [31:0] PC_plus4; // PC_plus4 is actually PC_plus1 but we have written it as PC_plus4
 adder #(
-    .WIDTH(32) // ---------------------------------> width of PC out is 8 then adder ka width bhi 8 hona chaiye??????
+    .WIDTH(32) 
 ) adder_in_IF_stage (
     .a(pc_out),
-    .b(32'd1), // ----------------------------------> iska bhi width 8 hona chaiye?????
-    .sum(PC_plus4)
+    .b(32'd1), // As we made the Instruction memory word addressible so , We will add 1 only after every clock cycle 
+    .sum(PC_plus4) // PC_plus4 is actually PC_plus1 but we have written it as PC_plus4
 );
 
 wire [31:0] mux0_out;
@@ -148,11 +151,9 @@ mux_nx1 #(
 //-------------stage 1 Instruction Fetch-------------------end-------------------------------------------------end-------
 
 //======================================================================================================================
-//
-//======================================================================================================================
 //======================================================================================================================
 //pipeline register between IF and ID stages------start
-// 2input to this pipeline register1-> PC_plus4[31:0], icache_rdata[31:0], EN_to_pipelineReg1(from_HazardControl)
+
 wire [31:0] IDstage_PC_plus4; // Output from the adder
 wire [31:0] instruction ; // Output from instruction cache
 pipeline_register #(
@@ -276,11 +277,9 @@ adder #(
 //------------------------------------------------------------------------------------------------------------------------------
 //-------------stage 2 Instruction Decode-------------------end-------------------------------------------------end-------------
 
-
 //======================================================================================================================
 //======================================================================================================================
 //pipeline register between ID and EX stages------statrt
-// 7input to this pipeline register2 and 3 control inputs-> 
 
 // rs and rt are the data output from pipeline register2 in which forwarded data coming from ID stage muxes whose outputs are connected to pipeline register2
 wire [31:0] rs; 
@@ -406,7 +405,6 @@ mux_nx1 #(
     .out(final_ALU_result) // Output write data for register file
 );
 
-
 //------------------------------------------------------------------------------------------------------------------------------
 //-------------stage 3 Execute-------------------end-------------------------------------------------end-------------
 
@@ -414,7 +412,7 @@ mux_nx1 #(
 //======================================================================================================================
 //======================================================================================================================
 //pipeline register between EX and MA stages------statrt
-// 4 Data input to this pipeline register3 and 2 control inputs-> 
+
 wire zero; // Zero output from ALU
 wire [31:0] WriteDataM; // Output write data for register file from execute stage
 wire [31:0] data_to_Dcache; 
@@ -464,11 +462,10 @@ register_file #(
 //------------------------------------------------------------------------------------------------------------------------------
 //-------------stage 2 Memory Access-------------------end-------------------------------------------------end-------------
 
-
 //======================================================================================================================
 //======================================================================================================================
 //pipeline register between MA and WB stages------statrt
-// 4 Data input to this pipeline register3 and 2 control inputs-> 
+
 wire [4:0] WriteRegW;
 pipeline_register #(
     .DATA_WIDTH(69),
