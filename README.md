@@ -778,12 +778,3 @@ loop:
 end:
     add  $t2, $t0, $t1         # $t2 = final sum
 ```
-
-## Benchmarks
-
-### Performance Metrics
-
-| Benchmark Program | Instructions | Cycles | CPI | Hazard Stalls |
-|-------------------|--------------|--------|-----|---------------|
-| Basic Arithmetic  | 50           | 58     | 1.16| 8             |
-| Matrix Multiply   | 500          | 650    | 1.30
